@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "noImplicitAny": true,
+    "declaration": true
+  },
+  "types": ["@types/mapbox-gl"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}
