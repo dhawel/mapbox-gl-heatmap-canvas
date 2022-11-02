@@ -1,24 +1,28 @@
 {
   "name": "mapbox-gl-heatmap-canvas",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "JavaScript library for rendering temperature maps with Mapbox GL JS. ",
-  "main": "index.js",
+  "main": "./dist/interpolateHeatmap.js",
+  "types": "./dist/interpolateHeatmap.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dhawel/mapbox-gl-heatmap-canvas.git"
-  },
+  
   "keywords": [
-    "mapbox-gl"
+    "mapbox-gl",
+    "mapbox",
+    "heatmap",
+    "interpolate",
+    "temperature",
+    "map",
+    "layer",
+    "canvas"
+  ],
+  "files": [
+    "dist"
   ],
   "author": "Dhammika",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dhawel/mapbox-gl-heatmap-canvas/issues"
-  },
-  "homepage": "https://github.com/dhawel/mapbox-gl-heatmap-canvas#readme",
   "devDependencies": {
     "@types/mapbox-gl": "^2.7.6",
     "typescript": "^4.8.4"
