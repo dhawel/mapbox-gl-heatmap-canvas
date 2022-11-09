@@ -1,7 +1,8 @@
 # mapbox-gl-heatmap-canvas
 
 A simple JavaScript JavaScript library for rendering temperature maps with Mapbox GL JS.
-This library intends to provide a canvas element as a Mapbox GL layer that can be used to overlay colors for the given locations.Iterpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
+
+This library intends to provide a canvas element as a Mapbox GL layer that can be used to overlay colors for the given locations. Interpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
 
 # Installing
 
@@ -20,7 +21,7 @@ $ yarn add mapbox-gl-heatmap-canvas
 
 # Usage
 
-Following implementation is using reactjs.
+Following implementation is using Reactjs.
 
 ```javascript
 import { useRef, useEffect } from "react";
