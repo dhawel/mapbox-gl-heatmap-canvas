@@ -116,10 +116,11 @@ function App() {
 }
 
 ```
+
 `new InterpolateHeatmap()` has following parameters
 
 - `canvas` : HTML canvas element.This should be a ` HTMLCanvasElement` type
-- `canavasConers` :  Four geographical coordinates denoting where to place the corners of the canvas, specified in [longitude, latitude] pairs.
+- `canavasConers` : Four geographical coordinates denoting where to place the corners of the canvas, specified in [longitude, latitude] pairs.
 - `map` : Mapbox-gl `Map` object.
 
 `drawHeatmap()` method has following parameters
@@ -127,16 +128,15 @@ function App() {
 - `points` : An array of points that will be displayed on the canvas, each point specified in [longitude,latitude,value]
 
 - `valueColors` : The color in which each range of values should be denoted.This is specified by [value,color].Color should be a Hex value
-Ex:
+  Ex:
+
 ```javascript
- valueColors=[
-     [15, "#1e09bb"],
-     [20, "#0f25ef"],
- ]
+valueColors = [
+  [15, "#1e09bb"],
+  [20, "#0f25ef"],
+];
 ```
+
 Here, point values less than 15 will be denoted by color #1e09bb and point values between 15 and 20 will be denoted by #0f25ef.It's important to notice that each color denotes a range of values.
+
 - `intensity` : A value that corresponds to the intensity of the gradient.Default value of `50000` is suitable for most applications.
-
-
-
-
