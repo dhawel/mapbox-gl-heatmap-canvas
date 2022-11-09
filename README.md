@@ -31,8 +31,6 @@ mapboxgl.accessToken =
   "your-mapbox-access-token";
 
 //Define Styles
-
-
 const mapContainerStyle = {
   position: "absolute",
   top: "0",
