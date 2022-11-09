@@ -118,16 +118,19 @@ function App() {
 
 `new InterpolateHeatmap()` has following parameters
 
-- `canvas` : HTML canvas element.This should be a ` HTMLCanvasElement` type
+- `canvas` : HTML canvas element.This should be a ` HTMLCanvasElement` type.
+
 - `canavasConers` : Four geographical coordinates denoting where to place the corners of the canvas, specified in [longitude, latitude] pairs.
+
 - `map` : Mapbox-gl `Map` object.
 
-`drawHeatmap()` method has following parameters
+`drawHeatmap()` method has following parameters.
 
 - `points` : An array of points that will be displayed on the canvas, each point specified in [longitude,latitude,value]
 
 - `valueColors` : The color in which each range of values should be denoted.This is specified by [value,color].Color should be a Hex value
-  Ex:
+
+Example:
 
 ```javascript
 valueColors = [
