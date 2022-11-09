@@ -70,6 +70,7 @@ class InterpolateHeatmap {
   }
 
   calRgba(p: any, imageData: ImageData, intensity: number) {
+    
     //Calculating r,g,b,a
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -108,7 +109,7 @@ class InterpolateHeatmap {
 
   public drawHeatmap(
     points: number[][],
-    temperatureColors: (string | number)[][],
+    valueColors: (string | number)[][],
     intensity?: number
   ) {
     this.ctx.fillRect(0, 0, this.width, this.height);
@@ -128,9 +129,9 @@ class InterpolateHeatmap {
       //Lat&Lon converting to canvas values
       const xx = (pointProject.x - point1.x) / width;
       const yy = (pointProject.y - point1.y) / height;
-      let temperatureValue = point[2];
+      let value = point[2];
 
-      let vertex = this.calVertex(temperatureValue, temperatureColors);
+      let vertex = this.calVertex(value, valueColors);
 
       this.arr.push({
         x: xx,
@@ -167,18 +168,18 @@ class InterpolateHeatmap {
   }
 
   private calVertex(
-    temperatureValue: number,
-    temeratureColors: (string | number)[][]
+    value: number,
+    valueColors: (string | number)[][]
   ) {
     let color: string = "";
-    let colorRangeArr = temeratureColors.map((data) => data[0]);
+    let colorRangeArr = valueColors.map((data) => data[0]);
 
     for (let i = 0; i < colorRangeArr.length; i++) {
       if (
-        colorRangeArr[i] <= temperatureValue &&
-        colorRangeArr[i + 1] >= temperatureValue
+        colorRangeArr[i] <= value &&
+        colorRangeArr[i + 1] >= value
       ) {
-        color = <string>temeratureColors[i + 1][1];
+        color = <string>valueColors[i + 1][1];
         break;
       }
     }
