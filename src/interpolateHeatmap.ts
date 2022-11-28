@@ -35,7 +35,7 @@ class InterpolateHeatmap {
     this.rawData = this.imageData.data;
   }
 
-  metric(x1: number, y1: number, x2: number, y2: number): number {
+ private metric(x1: number, y1: number, x2: number, y2: number): number {
     let f = this.width / this.height;
 
     let x = x2 - x1;
@@ -48,7 +48,7 @@ class InterpolateHeatmap {
     return 1 / (x + y);
   }
 
-  calculateDist(p: any, intensity = 50000): void {
+  private calculateDist(p: any, intensity = 50000): void {
     //Gradient point distance area value
     let sumDist = intensity;
 
@@ -69,8 +69,8 @@ class InterpolateHeatmap {
     }
   }
 
-  calRgba(p: any, imageData: ImageData, intensity: number) {
-    
+  private calRgba(p: any, imageData: ImageData, intensity: number) {
+
     //Calculating r,g,b,a
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -150,7 +150,7 @@ class InterpolateHeatmap {
     this.calRgba(p, this.imageData, intensity as number);
   }
 
-  hexToRgb(hex: string) {
+  private hexToRgb(hex: string) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function (m, r, g, b) {
