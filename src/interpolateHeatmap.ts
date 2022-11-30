@@ -6,6 +6,10 @@ interface HeatmapElement {
   dist: number;
   weight: number;
 }
+interface Point{
+  x:number,
+  y:number
+}
 interface HeatmapArr extends Array<HeatmapElement> {}
 
 class InterpolateHeatmap {
@@ -69,7 +73,7 @@ class InterpolateHeatmap {
     }
   }
 
-  private calRgba(p: any, imageData: ImageData, intensity: number) {
+  private calRgba(p: Point, imageData: ImageData, intensity: number) {
 
     //Calculating r,g,b,a
     for (let y = 0; y < this.height; y++) {
@@ -142,10 +146,7 @@ class InterpolateHeatmap {
       });
     });
 
-    let p: {
-      x: number;
-      y: number;
-    } = { x: 0, y: 0 };
+    let p:Point={ x: 0, y: 0 };
 
     this.calRgba(p, this.imageData, intensity as number);
   }
