@@ -2,7 +2,7 @@
 
 A simple JavaScript JavaScript library for rendering temperature maps with Mapbox GL JS.
 
-This library intends to provide a canvas element as a Mapbox GL layer that can be used to overlay colors for the given locations. Interpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
+This library intends to provide a canvas element as a Mapbox GL layer that can be used to overlay colors for the given locations.  Given a canvas element and a set of gradient points, the library uses a distance-based interpolation method to generate a smooth heatmap that transitions between the different gradient points. The library provides an easy-to-use API for generating and rendering heatmaps on Mapbox GL JS maps, making it a useful tool for visualizing spatial data.Interpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
 # Examples
 - Here is alink to alive demo [live demo](https://mapbox-gl-heatmap-canvas.vercel.app/)
 # Installing
@@ -117,7 +117,7 @@ function App() {
 
 ```
 
-`new InterpolateHeatmap()` has following parameters
+#### `new InterpolateHeatmap()` has following parameters
 
 - `canvas` : HTML canvas element.This should be a ` HTMLCanvasElement` type.
 
@@ -125,7 +125,7 @@ function App() {
 
 - `map` : Mapbox-gl `Map` object.
 
-`drawHeatmap()` method has following parameters.
+#### `drawHeatmap()` method has following parameters.
 
 - `points` : An array of points that will be displayed on the canvas, each point specified in [longitude,latitude,value]
 
