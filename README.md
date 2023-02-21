@@ -1,6 +1,6 @@
 # mapbox-gl-heatmap-canvas
 
-A simple JavaScript JavaScript library JavaScript library for rendering interpolated heatmaps on a Mapbox GL JS map.
+A simple JavaScript library for rendering interpolated heatmaps on a Mapbox GL JS map.
 
 By providing a set of gradient points and their corresponding values, the library uses a distance-based interpolation method to create a smooth heatmap that transitions between the different gradient points.The library provides an easy-to-use API for generating and rendering heatmaps on Mapbox GL JS maps, making it a useful tool for visualizing spatial data.Interpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
 # Examples
