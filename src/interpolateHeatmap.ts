@@ -1,4 +1,3 @@
-
 interface HeatmapElement {
   x: number;
   y: number;
@@ -6,9 +5,9 @@ interface HeatmapElement {
   dist: number;
   weight: number;
 }
-interface Point{
-  x:number,
-  y:number
+interface Point {
+  x: number;
+  y: number;
 }
 interface HeatmapArr extends Array<HeatmapElement> {}
 
@@ -39,7 +38,7 @@ class InterpolateHeatmap {
     this.rawData = this.imageData.data;
   }
 
- private metric(x1: number, y1: number, x2: number, y2: number): number {
+  private metric(x1: number, y1: number, x2: number, y2: number): number {
     let f = this.width / this.height;
 
     let x = x2 - x1;
@@ -74,7 +73,6 @@ class InterpolateHeatmap {
   }
 
   private calRgba(p: Point, imageData: ImageData, intensity: number) {
-
     //Calculating r,g,b,a
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -146,19 +144,22 @@ class InterpolateHeatmap {
       });
     });
 
-    let p:Point={ x: 0, y: 0 };
+    let p: Point = { x: 0, y: 0 };
 
     this.calRgba(p, this.imageData, intensity as number);
   }
-
+  /*
+This code converts a hexadecimal color value to an RGB color value.
+The code starts by defining a hexadecimal color value.
+The code then defines a shorthandRegex variable and sets it to the shorthand form of the hexadecimal color value.
+The code then defines a result variable and sets it to the full form of the hexadecimal color value.
+The code will return the full form of the hexadecimal color value.
+*/
   private hexToRgb(hex: string) {
-    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-      return r + r + g + g + b + b;
-    });
+    hex = hex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
 
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? {
           r: parseInt(result[1], 16),
@@ -167,19 +168,12 @@ class InterpolateHeatmap {
         }
       : null;
   }
-
-  private calVertex(
-    value: number,
-    valueColors: (string | number)[][]
-  ) {
+  private calVertex(value: number, valueColors: (string | number)[][]) {
     let color: string = "";
     let colorRangeArr = valueColors.map((data) => data[0]);
 
     for (let i = 0; i < colorRangeArr.length; i++) {
-      if (
-        colorRangeArr[i] <= value &&
-        colorRangeArr[i + 1] >= value
-      ) {
+      if (colorRangeArr[i] <= value && colorRangeArr[i + 1] >= value) {
         color = <string>valueColors[i + 1][1];
         break;
       }
