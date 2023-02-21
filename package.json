@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-heatmap-canvas",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "JavaScript library for rendering interpolated heatmaps on a Mapbox GL JS map. ",
   "main": "./dist/interpolateHeatmap.js",
   "types": "./dist/interpolateHeatmap.d.ts",
