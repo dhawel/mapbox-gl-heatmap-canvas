@@ -155,19 +155,24 @@ The code then defines a shorthandRegex variable and sets it to the shorthand for
 The code then defines a result variable and sets it to the full form of the hexadecimal color value.
 The code will return the full form of the hexadecimal color value.
 */
-  private hexToRgb(hex: string) {
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
+  private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    // Remove any leading hash character and split the hex code into three parts
+    const hexParts = hex.replace(/^#/, "").match(/.{1,2}/g);
 
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
+    if (!hexParts) {
+      return null;
+    }
+
+    // Parse each hex part to an integer and convert it to a decimal value between 0 and 1
+    const rgbParts = hexParts.map((part) => parseInt(part, 16) / 255);
+
+    return {
+      r: Math.round(rgbParts[0] * 255),
+      g: Math.round(rgbParts[1] * 255),
+      b: Math.round(rgbParts[2] * 255),
+    };
   }
+
   private calVertex(value: number, valueColors: (string | number)[][]) {
     let color: string = "";
     let colorRangeArr = valueColors.map((data) => data[0]);
