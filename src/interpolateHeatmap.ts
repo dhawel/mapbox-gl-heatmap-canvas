@@ -155,23 +155,22 @@ The code then defines a shorthandRegex variable and sets it to the shorthand for
 The code then defines a result variable and sets it to the full form of the hexadecimal color value.
 The code will return the full form of the hexadecimal color value.
 */
-  private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-    // Remove any leading hash character and split the hex code into three parts
-    const hexParts = hex.replace(/^#/, "").match(/.{1,2}/g);
+private  hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const regex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+  const result = regex.exec(hex);
 
-    if (!hexParts) {
-      return null;
-    }
-
-    // Parse each hex part to an integer and convert it to a decimal value between 0 and 1
-    const rgbParts = hexParts.map((part) => parseInt(part, 16) / 255);
-
-    return {
-      r: Math.round(rgbParts[0] * 255),
-      g: Math.round(rgbParts[1] * 255),
-      b: Math.round(rgbParts[2] * 255),
-    };
+  if (!result) {
+    throw new Error(`Invalid hex color string: ${hex}`);
   }
+
+  // Expand short hex color strings
+  const r = parseInt(result[1].length === 1 ? result[1] + result[1] : result[1], 16);
+  const g = parseInt(result[2].length === 1 ? result[2] + result[2] : result[2], 16);
+  const b = parseInt(result[3].length === 1 ? result[3] + result[3] : result[3], 16);
+
+  return { r, g, b };
+}
+
 
   private calVertex(value: number, valueColors: (string | number)[][]) {
     let color: string = "";
