@@ -9,7 +9,7 @@ interface Point {
   x: number;
   y: number;
 }
-interface HeatmapArr extends Array<HeatmapElement> {}
+interface HeatmapElements extends Array<HeatmapElement> {}
 
 class InterpolateHeatmap {
   ctx: CanvasRenderingContext2D;
@@ -19,7 +19,7 @@ class InterpolateHeatmap {
 
   rawData: Uint8ClampedArray;
   map: mapboxgl.Map;
-  arr: HeatmapArr;
+  heatmapElements: HeatmapElements;
   imageData: ImageData;
 
   constructor(
@@ -33,7 +33,7 @@ class InterpolateHeatmap {
     this.canvasConers = canvasConers;
     this.ctx = canvas.getContext("2d")!;
     this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
-    this.arr = [];
+    this.heatmapElements = [];
 
     this.rawData = this.imageData.data;
   }
@@ -57,18 +57,18 @@ class InterpolateHeatmap {
 
     // let maxDist = 10000;
 
-    for (let i = 0; i < this.arr.length; i++) {
-      let d = this.metric(p.x, p.y, this.arr[i].x, this.arr[i].y);
+    for (let i = 0; i < this.heatmapElements.length; i++) {
+      let d = this.metric(p.x, p.y, this.heatmapElements[i].x, this.heatmapElements[i].y);
       d += 0.001;
-      this.arr[i].dist = d;
+      this.heatmapElements[i].dist = d;
     }
 
-    for (let i = 0; i < this.arr.length; i++) {
-      sumDist += this.arr[i].dist;
+    for (let i = 0; i < this.heatmapElements.length; i++) {
+      sumDist += this.heatmapElements[i].dist;
     }
 
-    for (let i = 0; i < this.arr.length; i++) {
-      this.arr[i].weight = this.arr[i].dist / sumDist;
+    for (let i = 0; i < this.heatmapElements.length; i++) {
+      this.heatmapElements[i].weight = this.heatmapElements[i].dist / sumDist;
     }
   }
 
@@ -86,11 +86,11 @@ class InterpolateHeatmap {
         let b = 0;
         let a = 0; //intensity  Value
 
-        for (let i = 0; i < this.arr.length; i++) {
-          r += this.arr[i].v[0] * this.arr[i].weight;
-          g += this.arr[i].v[1] * this.arr[i].weight;
-          b += this.arr[i].v[2] * this.arr[i].weight;
-          a += this.arr[i].v[3] * this.arr[i].weight;
+        for (let i = 0; i < this.heatmapElements.length; i++) {
+          r += this.heatmapElements[i].v[0] * this.heatmapElements[i].weight;
+          g += this.heatmapElements[i].v[1] * this.heatmapElements[i].weight;
+          b += this.heatmapElements[i].v[2] * this.heatmapElements[i].weight;
+          a += this.heatmapElements[i].v[3] * this.heatmapElements[i].weight;
         }
 
         r = Math.floor(Math.min(255, r));
@@ -135,7 +135,7 @@ class InterpolateHeatmap {
 
       let vertex = this.calVertex(value, valueColors);
 
-      this.arr.push({
+      this.heatmapElements.push({
         x: xx,
         y: yy,
         v: vertex,
