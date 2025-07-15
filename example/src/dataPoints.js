@@ -9,7 +9,7 @@ export const objArr = [
       lat: 24.431716,
       temperature:17,
     },
-  
+
     {
       lon: 54.6207901,
       lat: 24.4319789,
@@ -20,7 +20,7 @@ export const objArr = [
       lat: 24.431874,
       temperature:19,
     },
-  
+
     {
       lon: 54.6209095,
       lat: 24.4321308,
@@ -31,13 +31,13 @@ export const objArr = [
       lat: 24.4322552,
       temperature:21,
     },
-  
+
     {
       lon: 54.6210078,
       lat: 24.4323796,
       temperature:22,
     },
-  
+
     {
       lon: 54.6210759,
       lat: 24.4324884,
@@ -98,7 +98,7 @@ export const objArr = [
       lat: 24.430987148832035,
       temperature:28,
     },
-  
+
     {
       lon: 54.62123015546833,
       lat: 24.432140423545174,
@@ -124,7 +124,7 @@ export const objArr = [
       lat: 24.431891337061806,
       temperature:30,
     },
-  
+
     {
       lon: 54.621771961678625,
       lat: 24.43179365595365,
@@ -195,7 +195,7 @@ export const objArr = [
       lat: 24.430294241446248,
       temperature:41,
     },
-  
+
     //Next lane
     {
       lon: 54.61834946297644,
@@ -204,12 +204,12 @@ export const objArr = [
     },
     {
       lon: 54.61828508996135,
-      lat: 24.430379713436125, 
+      lat: 24.430379713436125,
       temperature:41,
     },
     {
       lon: 54.6181482973043,
-      lat: 24.43047739563936, 
+      lat: 24.43047739563936,
       temperature:41,
     },
     {
@@ -219,12 +219,12 @@ export const objArr = [
     },
     {
       lon: 54.61799004696293,
-      lat: 24.430616592649738, 
+      lat: 24.430616592649738,
       temperature:41,
     },
     {
       lon: 54.61796054266435,
-      lat: 24.43063368700866, 
+      lat: 24.43063368700866,
       temperature:41,
     },
     {
@@ -232,7 +232,7 @@ export const objArr = [
       lat: 24.430711832619938,
       temperature:41,
     },
-  
+
     {
       lon: 54.61770841502193,
       lat: 24.430797304326838,
@@ -274,7 +274,7 @@ export const objArr = [
     },
     {
       lon: 54.61635325440034,
-      lat: 24.4320126723516, 
+      lat: 24.4320126723516,
       temperature:47,
     },
     {
