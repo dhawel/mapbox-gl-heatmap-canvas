@@ -8,7 +8,7 @@ The interpolation algorithm uses inverse distance weighting to blend colors smoo
 
 # Examples
 
-- Here is the link to a demo [live demo](https://mapbox-gl-heatmap-canvas.vercel.app/)
+- Here is the link to a demo [live demo](https://mapbox-gl-heatmap-canvas-qfq3.vercel.app/)
 
 # Installing
 
