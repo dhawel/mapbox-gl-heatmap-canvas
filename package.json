@@ -7,7 +7,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dhawel/mapbox-gl-heatmap-canvas.git"
+    "url": "git+https://github.com/dhawel/mapbox-gl-heatmap-canvas.git"
   },
   "scripts": {
     "build": "tsc",
@@ -32,7 +32,7 @@
   "author": "Dhammika",
   "license": "MIT",
   "devDependencies": {
-    "@types/mapbox-gl": "^3.4.1",
-    "typescript": "^5.8.3"
+    "@types/mapbox-gl": "^3.1.0",
+    "typescript": "^5.3.0"
   }
 }
