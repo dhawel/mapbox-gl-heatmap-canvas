@@ -1,9 +1,9 @@
+import * as mapboxgl from "mapbox-gl";
+
 interface HeatmapElement {
   x: number;
   y: number;
   v: number[];
-  dist: number;
-  weight: number;
 }
 interface Point {
   x: number;
@@ -15,7 +15,7 @@ class InterpolateHeatmap {
   ctx: CanvasRenderingContext2D;
   width: number;
   height: number;
-  canvasConers: number[][];
+  canvasConers: [number, number][];
 
   rawData: Uint8ClampedArray;
   map: mapboxgl.Map;
@@ -24,7 +24,7 @@ class InterpolateHeatmap {
 
   constructor(
     canvas: HTMLCanvasElement,
-    canvasConers: number[][],
+    canvasConers: [number, number][],
     map: mapboxgl.Map
   ) {
     this.width = canvas.width;
@@ -51,54 +51,41 @@ class InterpolateHeatmap {
     return 1 / (x + y);
   }
 
-  private calculateDist(p: any, intensity = 50000): void {
-    //Gradient point distance area value
-    let sumDist = intensity;
+  private calRgba(imageData: ImageData, intensity: number) {
+    // Pre-calculate some values for performance
+    const widthRatio = 1 / this.width;
+    const heightRatio = 1 / this.height;
 
-    // let maxDist = 10000;
-
-    for (let i = 0; i < this.arr.length; i++) {
-      let d = this.metric(p.x, p.y, this.arr[i].x, this.arr[i].y);
-      d += 0.001;
-      this.arr[i].dist = d;
-    }
-
-    for (let i = 0; i < this.arr.length; i++) {
-      sumDist += this.arr[i].dist;
-    }
-
-    for (let i = 0; i < this.arr.length; i++) {
-      this.arr[i].weight = this.arr[i].dist / sumDist;
-    }
-  }
-
-  private calRgba(p: Point, imageData: ImageData, intensity: number) {
-    //Calculating r,g,b,a
+    // Calculating r,g,b,a for each pixel
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        p.x = x / this.width;
-        p.y = y / this.height;
+        const px = x * widthRatio;
+        const py = y * heightRatio;
 
-        this.calculateDist(p, intensity);
+        // Calculate distances and weights for this pixel
+        const weights = this.calculatePixelWeights(px, py, intensity);
 
         let r = 0;
         let g = 0;
         let b = 0;
-        let a = 0; //intensity  Value
+        let a = 0;
 
+        // Apply weighted interpolation
         for (let i = 0; i < this.arr.length; i++) {
-          r += this.arr[i].v[0] * this.arr[i].weight;
-          g += this.arr[i].v[1] * this.arr[i].weight;
-          b += this.arr[i].v[2] * this.arr[i].weight;
-          a += this.arr[i].v[3] * this.arr[i].weight;
+          const weight = weights[i];
+          r += this.arr[i].v[0] * weight;
+          g += this.arr[i].v[1] * weight;
+          b += this.arr[i].v[2] * weight;
+          a += this.arr[i].v[3] * weight;
         }
 
-        r = Math.floor(Math.min(255, r));
-        g = Math.floor(Math.min(255, g));
-        b = Math.floor(Math.min(255, b));
-        a = Math.floor(Math.min(255, a));
+        // Clamp values to valid range
+        r = Math.floor(Math.min(255, Math.max(0, r)));
+        g = Math.floor(Math.min(255, Math.max(0, g)));
+        b = Math.floor(Math.min(255, Math.max(0, b)));
+        a = Math.floor(Math.min(255, Math.max(0, a)));
 
-        let index = (x + y * this.width) * 4;
+        const index = (x + y * this.width) * 4;
 
         this.rawData[index] = r;
         this.rawData[index + 1] = g;
@@ -109,44 +96,72 @@ class InterpolateHeatmap {
     this.ctx.putImageData(imageData, 0, 0);
   }
 
+  private calculatePixelWeights(
+    px: number,
+    py: number,
+    intensity: number
+  ): number[] {
+    let sumDist = intensity;
+    const distances: number[] = [];
+
+    // Calculate distances from this pixel to all data points
+    for (let i = 0; i < this.arr.length; i++) {
+      const distance = this.metric(px, py, this.arr[i].x, this.arr[i].y);
+      distances[i] = distance + 0.001; // Add small value to avoid division by zero
+      sumDist += distances[i];
+    }
+
+    // Calculate normalized weights
+    const weights: number[] = [];
+    for (let i = 0; i < distances.length; i++) {
+      weights[i] = distances[i] / sumDist;
+    }
+
+    return weights;
+  }
+
   public drawHeatmap(
-    points: number[][],
-    valueColors: (string | number)[][],
-    intensity?: number
+    points: [number, number, number][],
+    valueColors: [number, string][],
+    intensity: number = 50000
   ) {
     this.ctx.fillRect(0, 0, this.width, this.height);
-    const point1 = this.map.project(<mapboxgl.LngLatLike>this.canvasConers[0]);
-    const point2 = this.map.project(<mapboxgl.LngLatLike>this.canvasConers[1]);
-    const point3 = this.map.project(<mapboxgl.LngLatLike>this.canvasConers[2]);
-    const point4 = this.map.project(<mapboxgl.LngLatLike>this.canvasConers[3]);
+    const point1 = this.map.project(
+      this.canvasConers[0] as mapboxgl.LngLatLike
+    );
+    const point2 = this.map.project(
+      this.canvasConers[1] as mapboxgl.LngLatLike
+    );
+    const point3 = this.map.project(
+      this.canvasConers[2] as mapboxgl.LngLatLike
+    );
+    const point4 = this.map.project(
+      this.canvasConers[3] as mapboxgl.LngLatLike
+    );
 
     const width = Math.abs(point1.x - point2.x);
     //Canvas height calculating
     const height = Math.abs(point1.y - point4.y);
 
-    points.map((point) => {
-      let lgLatPoint = <mapboxgl.LngLatLike>[point[0], point[1]];
-      const pointProject = this.map.project(lgLatPoint);
+    points.forEach((point) => {
+      const lngLatPoint: mapboxgl.LngLatLike = [point[0], point[1]];
+      const pointProject = this.map.project(lngLatPoint);
 
       //Lat&Lon converting to canvas values
       const xx = (pointProject.x - point1.x) / width;
       const yy = (pointProject.y - point1.y) / height;
       let value = point[2];
 
-      let vertex = this.calVertex(value, valueColors);
+      const vertex = this.calVertex(value, valueColors);
 
       this.arr.push({
         x: xx,
         y: yy,
         v: vertex,
-        dist: 0,
-        weight: 0,
       });
     });
 
-    let p: Point = { x: 0, y: 0 };
-
-    this.calRgba(p, this.imageData, intensity as number);
+    this.calRgba(this.imageData, intensity);
   }
   /*
 This code converts a hexadecimal color value to an RGB color value.
@@ -168,24 +183,47 @@ The code will return the full form of the hexadecimal color value.
         }
       : null;
   }
-  private calVertex(value: number, valueColors: (string | number)[][]) {
+  private calVertex(value: number, valueColors: [number, string][]): number[] {
     let color: string = "";
-    let colorRangeArr = valueColors.map((data) => data[0]);
 
-    for (let i = 0; i < colorRangeArr.length; i++) {
-      if (colorRangeArr[i] <= value && colorRangeArr[i + 1] >= value) {
-        color = <string>valueColors[i + 1][1];
+    // Sort valueColors by threshold to ensure proper ordering
+    const sortedColors = [...valueColors].sort((a, b) => a[0] - b[0]);
+
+    // Find the appropriate color for the value
+    for (let i = 0; i < sortedColors.length; i++) {
+      const [threshold, colorHex] = sortedColors[i];
+
+      if (value <= threshold) {
+        color = colorHex;
         break;
+      }
+
+      // If we're between two thresholds, use interpolation or pick the higher one
+      if (i < sortedColors.length - 1) {
+        const [nextThreshold] = sortedColors[i + 1];
+        if (value > threshold && value <= nextThreshold) {
+          color = sortedColors[i + 1][1];
+          break;
+        }
       }
     }
 
-    let rgb = this.hexToRgb(color);
-    if (rgb === null) {
-      throw new Error("Color hex code unknown");
+    // Fallback to the highest color range if value exceeds all thresholds
+    if (!color && sortedColors.length > 0) {
+      color = sortedColors[sortedColors.length - 1][1];
     }
 
-    let vertex = [rgb?.r, rgb?.g, rgb?.b, 255];
-    return vertex;
+    // Final fallback to prevent errors
+    if (!color) {
+      color = "#000000";
+    }
+
+    const rgb = this.hexToRgb(color);
+    if (rgb === null) {
+      throw new Error(`Invalid color hex code: ${color}`);
+    }
+
+    return [rgb.r, rgb.g, rgb.b, 255];
   }
 }
 
