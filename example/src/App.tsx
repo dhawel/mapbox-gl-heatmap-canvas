@@ -1,6 +1,6 @@
 import mapboxgl from "mapbox-gl";
 import { InterpolateHeatmap } from "mapbox-gl-heatmap-canvas";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { objArr } from "./dataPoints";
 
 const KEY = import.meta.env.VITE_MAPBOX_KEY;
@@ -50,7 +50,52 @@ function App() {
   const [colorScheme, setColorScheme] =
     useState<keyof typeof COLOR_SCHEMES>("temperature");
   const [showControls, setShowControls] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const heatmapRef = useRef<InterpolateHeatmap | null>(null);
+  const updateTimeoutRef = useRef<number | null>(null);
+  const isUserInteractingRef = useRef(false);
+
+  const points = useRef(
+    objArr
+      .filter(
+        (p) =>
+          typeof p.lon === "number" &&
+          typeof p.lat === "number" &&
+          typeof p.temperature === "number"
+      )
+      .map((p) => [p.lon, p.lat, p.temperature] as [number, number, number])
+  );
+
+  const debouncedUpdateHeatmap = useCallback(() => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+
+    updateTimeoutRef.current = setTimeout(
+      () => {
+        if (!heatmapRef.current || !canvasRef.current) return;
+
+        setIsUpdating(true);
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+
+        if (ctx) {
+          requestAnimationFrame(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            heatmapRef.current!.arr = [];
+            heatmapRef.current!.drawHeatmap(
+              points.current,
+              COLOR_SCHEMES[colorScheme],
+              intensity
+            );
+            setIsUpdating(false);
+            isUserInteractingRef.current = false;
+          });
+        }
+      },
+      isUserInteractingRef.current ? 150 : 50
+    );
+  }, [colorScheme, intensity]);
 
   useEffect(() => {
     if (!mapContainer.current || !canvasRef.current) return;
@@ -107,30 +152,39 @@ function App() {
       },
       center: MAP_CENTER,
       zoom: 15.5,
+      minZoom: 13,
+      maxZoom: 18,
       attributionControl: false,
+      boxZoom: false,
+      doubleClickZoom: false,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchZoomRotate: false,
     });
 
-    const points = objArr
-      .filter(
-        (p) =>
-          typeof p.lon === "number" &&
-          typeof p.lat === "number" &&
-          typeof p.temperature === "number"
-      )
-      .map((p) => [p.lon, p.lat, p.temperature] as [number, number, number]);
+    map.addControl(
+      new mapboxgl.NavigationControl({
+        showCompass: false,
+        showZoom: true,
+        visualizePitch: false,
+      }),
+      "top-right"
+    );
 
-    const updateHeatmap = () => {
-      if (!heatmapRef.current || !canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        heatmapRef.current.arr = [];
-        heatmapRef.current.drawHeatmap(
-          points,
-          COLOR_SCHEMES[colorScheme],
-          intensity
-        );
-      }
+    const handleMoveStart = () => {
+      isUserInteractingRef.current = true;
+    };
+
+    const handleMoveEnd = () => {
+      debouncedUpdateHeatmap();
+    };
+
+    const handleZoomStart = () => {
+      isUserInteractingRef.current = true;
+    };
+
+    const handleZoomEnd = () => {
+      debouncedUpdateHeatmap();
     };
 
     map.on("load", () => {
@@ -151,41 +205,42 @@ function App() {
 
       heatmapRef.current = new InterpolateHeatmap(canvas, CANVAS_CORNERS, map);
       heatmapRef.current.drawHeatmap(
-        points,
+        points.current,
         COLOR_SCHEMES[colorScheme],
         intensity
       );
     });
 
-    map.on("moveend", updateHeatmap);
-    map.on("zoomend", updateHeatmap);
+    map.on("movestart", handleMoveStart);
+    map.on("moveend", handleMoveEnd);
+    map.on("zoomstart", handleZoomStart);
+    map.on("zoomend", handleZoomEnd);
 
-    return () => map.remove();
-  }, []);
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      map.remove();
+    };
+  }, [debouncedUpdateHeatmap, colorScheme, intensity]);
 
   useEffect(() => {
-    if (heatmapRef.current) {
+    if (heatmapRef.current && !isUserInteractingRef.current) {
       const canvas = canvasRef.current;
       if (canvas) {
+        setIsUpdating(true);
         const ctx = canvas.getContext("2d");
         if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          heatmapRef.current.arr = [];
-          const points = objArr
-            .filter(
-              (p) =>
-                typeof p.lon === "number" &&
-                typeof p.lat === "number" &&
-                typeof p.temperature === "number"
-            )
-            .map(
-              (p) => [p.lon, p.lat, p.temperature] as [number, number, number]
+          requestAnimationFrame(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            heatmapRef.current!.arr = [];
+            heatmapRef.current!.drawHeatmap(
+              points.current,
+              COLOR_SCHEMES[colorScheme],
+              intensity
             );
-          heatmapRef.current.drawHeatmap(
-            points,
-            COLOR_SCHEMES[colorScheme],
-            intensity
-          );
+            setIsUpdating(false);
+          });
         }
       }
     }
@@ -241,6 +296,36 @@ function App() {
           }}
         />
 
+        {isUpdating && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 4,
+              background: "rgba(255,255,255,0.9)",
+              borderRadius: 8,
+              padding: "12px 20px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 16,
+                  border: "2px solid #ddd",
+                  borderTop: "2px solid #007bff",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                }}
+              ></div>
+              Updating heatmap...
+            </div>
+          </div>
+        )}
+
         <div
           style={{
             position: "absolute",
@@ -270,7 +355,7 @@ function App() {
           </div>
         </div>
 
-        <div style={{ position: "absolute", top: 24, right: 24, zIndex: 3 }}>
+        <div style={{ position: "absolute", top: 24, right: 50, zIndex: 3 }}>
           <button
             onClick={() => setShowControls(!showControls)}
             style={{
@@ -361,8 +446,7 @@ function App() {
               • Drag to pan, scroll to zoom
               <br />
               • Heatmap updates dynamically
-              <br />• {objArr.filter((p) => p.temperature).length} data points
-              interpolated
+              <br />• {points.current.length} data points interpolated
               <br />• Canvas overlays on Mapbox GL
             </div>
           </div>
@@ -394,6 +478,13 @@ function App() {
             <span style={{ fontSize: 12, color: "#666" }}>15°C → 50°C</span>
           </div>
         </div>
+
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </div>
   );
