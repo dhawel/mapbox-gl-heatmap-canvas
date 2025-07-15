@@ -2,8 +2,12 @@
 
 A simple JavaScript library for rendering interpolated heatmaps on a Mapbox GL JS map.
 
-By providing a set of gradient points and their corresponding values, the library uses a distance-based interpolation method to create a smooth heatmap that transitions between the different gradient points.The library provides an easy-to-use API for generating and rendering heatmaps on Mapbox GL JS maps, making it a useful tool for visualizing spatial data.Interpolation of color are based on bilinear interpolation algorithm.This module use [gradient2d](https://github.com/dismedia/gradient2d) library to implement bilinear interpolation.
+By providing a set of gradient points and their corresponding values, the library uses a distance-based interpolation method to create a smooth heatmap that transitions between the different gradient points. The library provides an easy-to-use API for generating and rendering heatmaps on Mapbox GL JS maps, making it a useful tool for visualizing spatial data.
+
+The interpolation algorithm uses inverse distance weighting to blend colors smoothly across the canvas, creating natural-looking heatmap visualizations.
+
 # Examples
+
 - Here is the link to a demo [live demo](https://mapbox-gl-heatmap-canvas.vercel.app/)
 
 # Installing
@@ -18,7 +22,23 @@ Using yarn:
 
 ```bash
 $ yarn add mapbox-gl-heatmap-canvas
+```
 
+## Browser Compatibility
+
+This library is compatible with all modern browsers that support:
+
+- Canvas API
+- ES2020 features
+- Mapbox GL JS v2.x
+
+## Installation Verification
+
+After installation, you can verify everything is working by running:
+
+```javascript
+import { InterpolateHeatmap } from "mapbox-gl-heatmap-canvas";
+console.log(InterpolateHeatmap); // Should log the class constructor
 ```
 
 # Usage
@@ -59,12 +79,16 @@ map.on("load", () => {
   });
 
   // Create InterpolateHeatmap instance and draw heatmap on canvas
-  const heatmap = new InterpolateHeatmap(canvas, [
-    [54.6, 24.445],
-    [54.644, 24.445],
-    [54.644, 24.405],
-    [54.6, 24.405],
-  ], map);
+  const heatmap = new InterpolateHeatmap(
+    canvas,
+    [
+      [54.6, 24.445],
+      [54.644, 24.445],
+      [54.644, 24.405],
+      [54.6, 24.405],
+    ],
+    map
+  );
   heatmap.drawHeatmap(
     [
       [54.62234595439645, 24.431402930764484, 33],
@@ -82,33 +106,78 @@ map.on("load", () => {
     50000
   );
 });
-
-
 ```
 
-#### `new InterpolateHeatmap()` has following parameters
+## API Reference
 
-- `canvas` : HTML canvas element.This should be a ` HTMLCanvasElement` type.
+### `new InterpolateHeatmap(canvas, canvasCorners, map)`
 
-- `canavasConers` : Four geographical coordinates denoting where to place the corners of the canvas, specified in [longitude, latitude] pairs.
+#### Parameters
 
-- `map` : Mapbox-gl `Map` object.
+- **`canvas`** (`HTMLCanvasElement`) - HTML canvas element where the heatmap will be rendered
+- **`canvasCorners`** (`[number, number][]`) - Four geographical coordinates defining canvas corners as `[longitude, latitude]` pairs
+- **`map`** (`mapboxgl.Map`) - Mapbox GL JS Map instance
 
-#### `drawHeatmap()` method has following parameters.
+### `drawHeatmap(points, valueColors, intensity?)`
 
-- `points` : An array of points that will be displayed on the canvas, each point specified in [longitude,latitude,value]
+#### Parameters
 
-- `valueColors` : The color in which each range of values should be denoted.This is specified by [value,color].Color should be a Hex value
+- **`points`** (`[number, number, number][]`) - Array of data points as `[longitude, latitude, value]` tuples
+- **`valueColors`** (`[number, string][]`) - Color mapping as `[threshold, hexColor]` pairs
+- **`intensity`** (`number`, optional) - Interpolation intensity (default: `50000`)
 
-Example:
+#### Value Colors
+
+The `valueColors` parameter defines color thresholds for different value ranges:
 
 ```javascript
-valueColors = [
-  [15, "#1e09bb"],
-  [20, "#0f25ef"],
+const valueColors = [
+  [15, "#1e09bb"], // Values ≤ 15 → blue
+  [25, "#0f25ef"], // Values 15-25 → light blue
+  [35, "#a0ddd0"], // Values 25-35 → cyan
 ];
 ```
 
-Here, point values less than 15 will be denoted by color #1e09bb and point values between 15 and 20 will be denoted by #0f25ef.It's important to notice that each color denotes a range of values.
+- Colors are automatically sorted by threshold
+- Values below the lowest threshold use the first color
+- Values above the highest threshold use the last color
+- Smooth interpolation occurs between thresholds
 
-- `intensity` : A value that corresponds to the intensity of the gradient.Default value of `50000` is suitable for most applications.
+#### Performance Notes
+
+- The algorithm is optimized for real-time rendering
+- Larger canvas sizes will impact performance
+- Consider reducing `intensity` for better performance with many data points
+
+## Troubleshooting
+
+### Common Issues
+
+**Canvas not appearing on map:**
+
+- Ensure canvas coordinates match your geographical bounds
+- Verify Mapbox access token is valid
+- Check that canvas layer is added after map load
+
+**Colors not displaying correctly:**
+
+- Verify hex color codes are valid (e.g., "#1e09bb")
+- Ensure value thresholds are numbers, not strings
+- Check that data point values are within expected ranges
+
+**Performance issues:**
+
+- Reduce canvas size for better performance
+- Lower the `intensity` parameter value
+- Consider limiting the number of data points
+
+### TypeScript Support
+
+This library is written in TypeScript and provides full type definitions. Import types as needed:
+
+```typescript
+import { InterpolateHeatmap } from "mapbox-gl-heatmap-canvas";
+import type * as mapboxgl from "mapbox-gl";
+
+const heatmap = new InterpolateHeatmap(canvas, corners, map);
+```
