@@ -1,38 +1,38 @@
-import { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
+import { useEffect, useRef } from "react";
 
+import { inject } from "@vercel/analytics";
 import { InterpolateHeatmap } from "mapbox-gl-heatmap-canvas";
-import { inject } from '@vercel/analytics';
 
 inject();
-const KEY=import.meta.env.VITE_MAPBOX_KEY
+const KEY = import.meta.env.VITE_MAPBOX_KEY;
 const mapContainerStyle = {
   position: "absolute",
   top: "0",
   bottom: "0",
   width: "100%",
-}as React.CSSProperties;
+} as React.CSSProperties;
 const appStyle = {
   width: "100%",
   height: "100%",
 };
 
-mapboxgl.accessToken =KEY;
+mapboxgl.accessToken = KEY;
 function App() {
   const mapContainer = useRef(null);
-  const points: number[][] = [
+  const points: [number, number, number][] = [
     [54.62234595439645, 24.431402930764484, 33],
     [54.62242642066531, 24.431339437806912, 34],
     [54.622512251352084, 24.43127594481738, 15],
     [54.62258735320302, 24.43123443015309, 15],
   ];
-  let canvasConers = [
+  const canvasConers: [number, number][] = [
     [54.6, 24.445],
     [54.644, 24.445],
     [54.644, 24.405],
     [54.6, 24.405],
   ];
-  let temeratureColors = [
+  const temperatureColors: [number, string][] = [
     [15, "#1e09bb"],
     [20, "#0f25ef"],
     [25, "#1668af"],
@@ -66,7 +66,7 @@ function App() {
     });
 
     let heatmap = new InterpolateHeatmap(canvas, canvasConers, map);
-    heatmap.drawHeatmap(points, temeratureColors, 50000);
+    heatmap.drawHeatmap(points, temperatureColors, 50000);
 
     // Clean up on unmount
 
